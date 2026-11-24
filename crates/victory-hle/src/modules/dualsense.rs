@@ -85,6 +85,12 @@ static START: Once = Once::new();
 /// The pad's newest state, starting the reader on first use.
 pub fn latest() -> Option<Reading> {
     START.call_once(|| {
+        if std::env::var_os("VICTORY_DISABLE_PLAYSTATION_HID").as_deref()
+            == Some(std::ffi::OsStr::new("1"))
+        {
+            tracing::info!("PlayStation HID polling disabled");
+            return;
+        }
         let _ = std::thread::Builder::new()
             .name("playstation-pad".into())
             .spawn(reader);
